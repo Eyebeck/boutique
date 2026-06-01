@@ -9,9 +9,11 @@ from django.db.models import Q
 class IndexView(TemplateView):
     template_name = 'main/base.html'
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+        context['products'] = Product.objects.all()
         context['current_category'] = None
         return context
     
@@ -20,16 +22,16 @@ class IndexView(TemplateView):
         context = self.get_context_data(**kwargs)
         if request.headers.get('HX-Request'):
             return TemplateResponse(request, 'main/home_content.html', context)
-        return TemplateResponse(request. self.template_name, context)
+        return TemplateResponse(request, self.template_name, context)
 
 class CatalogView(TemplateView):
-    template = 'main/base.html'
+    template_name = 'main/base.html'
 
     FILTER_MAPPING = {
-        'color': lambda queryset, value: queryset.filter(color_iexact=value),
-        'min_price': lambda queryset, value: queryset.filter(price_gte=value),
-        'max_price': lambda queryset, value: queryset.filter(price_lte=value),
-        'size': lambda queryset, value: queryset.filter(product_size__size__name=value),
+        'color': lambda queryset, value: queryset.filter(color__iexact=value),
+        'min_price': lambda queryset, value: queryset.filter(price__gte=value),
+        'max_price': lambda queryset, value: queryset.filter(price__lte=value),
+        'size': lambda queryset, value: queryset.filter(product_sizes__size__name=value),
     }
 
 
@@ -114,11 +116,5 @@ class ProductDetailView(DetailView):
         self.object = self.get_object()
         context = self.get_context_data(**kwargs)
         if request.headers.get('HX-Request'):
-            return TemplateResponse(request, 'main.product_detail.html', context)
-        raise TemplateResponse(request, self.template_name, context)
-
-
-        
-
-
-
+            return TemplateResponse(request, 'main/product_detail.html', context)
+        return TemplateResponse(request, self.template_name, context)
